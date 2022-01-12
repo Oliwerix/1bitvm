@@ -7,12 +7,20 @@ class VirtM:
 
     program: bytearray
     regs: list[bool]
+    in_buff: list[bool]
+    out_buff: list[bool]
+    # TODO pls make stdio support :D
 
     def __init__(self):
         self.regs = [False] * (2 ** 7)
 
     def __str__(self):
         return "< Just a tiny vm >"
+
+    def run(self):
+        "run until halt"
+        while self.step():
+            pass
 
     def step(self):
         "Will execute a single instruction"
@@ -32,8 +40,8 @@ class VirtM:
 
     def opp0(self, addr1: int, addr2: int):
         "Copy 2 bytes"
-        # TODO
-        assert False, "Not implemented"
+        for off in map(lambda x: x + addr2, range(16)):
+            self.regs[addr1] = self.regs[off] if off < len(self.regs) else True
 
     def opp1(self, addr1: int, addr2: int):
         "Nand two places, rez to addr2"
