@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 "provides the 1 bit virtual machine :D"
 
+import os
+import collections
+
 
 class VirtM:
     "the main vm class"
 
     program: bytearray
     regs: list[bool]
-    in_buff: list[bool]
-    out_buff: list[bool]
+    in_buff: collections.deque[bool]
+    out_buff: collections.deque[bool]
     # TODO pls make stdio support :D
 
     def __init__(self):
@@ -17,10 +20,21 @@ class VirtM:
     def __str__(self):
         return "< Just a tiny vm >"
 
-    def run(self):
+    def run_stdio(self):
         "run until halt"
         while self.step():
-            pass
+            self.dump_state()
+
+    def get_reg(self, i: int) -> bool:
+        "return register i"
+        ##if i ==
+        ##TODO
+        return self.regs[i]
+
+    def set_reg(self, i: int, val: bool):
+        "set register i to val"
+        ## TODO
+        self.regs[i] = val
 
     def step(self):
         "Will execute a single instruction"
@@ -41,11 +55,11 @@ class VirtM:
     def opp0(self, addr1: int, addr2: int):
         "Copy 2 bytes"
         for off in map(lambda x: x + addr2, range(16)):
-            self.regs[addr1] = self.regs[off] if off < len(self.regs) else True
+            self.set_reg(addr1, self.get_reg(off) if off < len(self.regs) else True)
 
     def opp1(self, addr1: int, addr2: int):
         "Nand two places, rez to addr2"
-        self.regs[addr2] = not (self.regs[addr1] and self.regs[addr2])
+        self.set_reg(addr2, not (self.get_reg(addr1) and self.get_reg(addr2)))
 
     def get_prgm(self, ins: int):
         "get the 'ins' instruction from PRGMEM"
@@ -73,13 +87,13 @@ class VirtM:
         rez = 0
         for i in range(16):
             rez <<= 1
-            rez |= self.regs[i]
+            rez |= self.get_reg(i)
         return rez
 
     def inc_pc(self):
         "will increase the programm counter by 1"
         for i in range(15, -1, -1):
-            if self.regs[i] == 0:
-                self.regs[i] = 1
+            if self.get_reg(i) == 0:
+                self.set_reg(i, 1)
                 break
-            self.regs[i] = 0
+            self.set_reg(i, 0)

@@ -11,8 +11,8 @@ def main():
     "What do i put into docstrings?"
     virtual_machine = oneb_vm.VirtM()
     virtual_machine.load("example.bin")
-    while virtual_machine.step():
-        virtual_machine.dump_state()
+    virtual_machine.run_stdio()
+    # :D
     for opt in sys.argv:
         if "-i" in opt:
             IPython.embed()
