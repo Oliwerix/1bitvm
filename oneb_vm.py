@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 "provides the 1 bit virtual machine :D"
 
-import os
+import typing
 import collections
 
 
@@ -10,7 +10,7 @@ class VirtM:
 
     program: bytearray
     regs: list[bool]
-    in_buff: collections.deque[bool]
+    in_buff: typing.Generator[bool]
     out_buff: collections.deque[bool]
     # TODO pls make stdio support :D
 
@@ -20,21 +20,21 @@ class VirtM:
     def __str__(self):
         return "< Just a tiny vm >"
 
-    def run_stdio(self):
-        "run until halt"
-        while self.step():
-            self.dump_state()
-
     def get_reg(self, i: int) -> bool:
         "return register i"
-        ##if i ==
-        ##TODO
+        if i == 0x10:
+            pass
         return self.regs[i]
 
     def set_reg(self, i: int, val: bool):
         "set register i to val"
         ## TODO
         self.regs[i] = val
+
+    def run_stdio(self):
+        "run until halt"
+        while self.step():
+            self.dump_state()
 
     def step(self):
         "Will execute a single instruction"
@@ -48,8 +48,10 @@ class VirtM:
             self.opp1(adr0, adr1)
         else:
             if adr0 == adr1 == 0:
-                return False
+                return True
             self.opp0(adr0, adr1)
+        if prgm_cnt == self.get_pc():
+            return False
         return True
 
     def opp0(self, addr1: int, addr2: int):
