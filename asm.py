@@ -10,14 +10,14 @@ def cmp(filename: str) -> bool:
     # TODO add .org
     # // predpostavljam praviln encodng fajla, pa itak je sam asci kj hces sploh pisat notr pac halo
     # Tole je naslabsa koda k sm jo kadar kol napisu -OW
-    subprocess.run(f"cpp {filename} > tmp.asm".split())
+    # subprocess.run(f"nasm -e {filename} > tmp.asm".split(" "), shell=1, check=1)
     with open("tmp.asm", "r") as infile:
         with open(f"{''.join(filename.split('.')[:-1])}.out", "wb") as outfile:
             for line in infile:
                 line = line.strip()
                 tokens = line.split(" ")
                 print(line)
-                if len(line) < 3 or line[0] in ["#", "/"]:
+                if len(line) < 3 or line[0] in ["#", "/", "%"]:
                     continue
                 if ":" in line:
                     continue
