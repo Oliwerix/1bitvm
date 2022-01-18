@@ -2,6 +2,7 @@
 "provides the 1 bit virtual machine :D"
 
 import typing
+import time
 import collections
 
 
@@ -10,7 +11,7 @@ class VirtM:
 
     program: bytearray
     regs: list[bool]
-    in_buff: typing.Generator[bool]
+    in_buff: typing.Generator[bool, None, None]
     out_buff: collections.deque[bool]
     # TODO pls make stdio support :D
 
@@ -22,8 +23,6 @@ class VirtM:
 
     def get_reg(self, i: int) -> bool:
         "return register i"
-        if i == 0x10:
-            pass
         return self.regs[i]
 
     def set_reg(self, i: int, val: bool):
@@ -31,10 +30,15 @@ class VirtM:
         ## TODO
         self.regs[i] = val
 
-    def run_stdio(self):
+    def run(self, after_step=None, itr=-1, delay=-1):
         "run until halt"
-        while self.step():
-            self.dump_state()
+
+        while self.step() and itr != 0:
+            itr -= 1
+            if callable(after_step):
+                after_step(self)
+            if delay > 0:
+                time.sleep(delay)
 
     def step(self):
         "Will execute a single instruction"
@@ -42,8 +46,8 @@ class VirtM:
         self.inc_pc()
         inst = self.get_prgm(prgm_cnt)
         opp = inst & 0x2
-        adr0 = inst & 0xFE00
-        adr1 = inst & 0x01FC
+        adr0 = (inst & 0xFE00) >> 9
+        adr1 = (inst & 0x01FC) >> 2
         if opp:
             self.opp1(adr0, adr1)
         else:
@@ -56,8 +60,10 @@ class VirtM:
 
     def opp0(self, addr1: int, addr2: int):
         "Copy 2 bytes"
-        for off in map(lambda x: x + addr2, range(16)):
-            self.set_reg(addr1, self.get_reg(off) if off < len(self.regs) else True)
+        for off in range(16):
+            self.set_reg(
+                addr2 + off, self.get_reg(addr1 + off) if off < len(self.regs) else True
+            )
 
     def opp1(self, addr1: int, addr2: int):
         "Nand two places, rez to addr2"
@@ -65,20 +71,36 @@ class VirtM:
 
     def get_prgm(self, ins: int):
         "get the 'ins' instruction from PRGMEM"
+        ins *= 2
         return (
             self.program[ins] << 8 | self.program[ins + 1]
-            if ins * 2 < len(self.program)
-            else 0
+            if ins < len(self.program)
+            else 0xFFFF
         )
 
     def load(self, file_name: str):
         "Load the binary programm proveided in file_name"
         with open(file_name, "rb") as fil:
             self.program = fil.read()
+            print(self.program)
 
     def dump_state(self):
         "Will dump the state of vm to stdout"
         print(f"{self.str_regs()}")
+
+    def dump_command(self):
+        "tries to read the currnt command"
+        prgm_cnt = self.get_pc()
+        inst = self.get_prgm(prgm_cnt)
+        opp = "nand" if inst & 0x2 else "copy2b"
+        adr0 = (inst & 0xFE00) >> 9
+        adr1 = (inst & 0x01FC) >> 2
+        print(f"{hex(prgm_cnt)} : ({hex(inst)}): {opp} : {hex(adr0)} -> {hex(adr1)}")
+
+    def dump_all(self):
+        "Will dump all!"
+        self.dump_command()
+        self.dump_state()
 
     def str_regs(self):
         "'Nicely' format registers for prinitng"
