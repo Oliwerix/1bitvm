@@ -1,0 +1,16 @@
+%define a nand
+%define c copy
+%macro cpy 2
+    a 0, %2
+    a %1, %2
+    a %2, %2
+%endmacro
+
+.org 0x20
+main:
+    a 0x7f, 0x7f
+    cpy 0x7f,0x7c
+.org 0x30
+    c 0x10, 0x0
+.org 0x21
+    a 0xff, 0x00
