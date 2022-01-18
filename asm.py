@@ -12,8 +12,8 @@ def cmp(filename: str) -> bool:
     nasm = subprocess.run(["nasm", "-e", filename], stdout=subprocess.PIPE, text=True)
     outs = nasm.stdout
     with open(f"{''.join(filename.split('.')[:-1])}.out", "w+b") as outfile:
-        pointer = 0
         def writeInstruction(out, noBytes=2):
+            "writes int to current position in file, also checks for possible overwriting"
             if int.from_bytes(outfile.read(noBytes), "big") != 0:
                 print(f"\033[93mOverwriting prevented on {outfile.tell()}\u001b[0m")
             outfile.write(out.to_bytes(noBytes, "big"))
