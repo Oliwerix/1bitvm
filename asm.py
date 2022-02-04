@@ -8,8 +8,8 @@ import typing
 
 def cmp(filename: str) -> bool:
     "compile"
-    # // predpostavljam praviln encodng fajla, pa itak je sam asci kj hces sploh pisat notr pac halo
-    # Tole je naslabsa koda k sm jo kadar kol napisu -OW
+    # TODO rabmo .db
+    # TODO rabmo advanced preprocessor motione
     nasm = subprocess.run(["nasm", "-e", filename], stdout=subprocess.PIPE, text=True)
     outs = nasm.stdout
     with open(f"{''.join(filename.split('.')[:-1])}.out", "w+b") as outfile:
