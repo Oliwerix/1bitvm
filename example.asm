@@ -1,13 +1,12 @@
-%define a nand
-%define c copy
-%macro cpy 2
-    a 0, %2
-    a %1, %2
-    a %2, %2
-%endmacro
+.org PAGE
+%include "std.asm"
 
+word:
+.db b"Bazo "
 
 main:
-    a 0x7f, 0x7f
-    cpy 0x7f,0x7c
-    c 0x14, 0x0
+    print2 jumps["word"]  , 0x15
+    print2 jumps["word"]+2, 0x15
+
+.org 0x0
+c j("main"), 0, 1

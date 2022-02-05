@@ -5,27 +5,31 @@ import sys
 import subprocess
 import typing
 
+PAGE = 2**7
+
 
 def cmp(filename: str) -> bool:
     "compile"
-    # TODO rabmo .db
-    # TODO rabmo advanced preprocessor motione
     nasm = subprocess.run(["nasm", "-e", filename], stdout=subprocess.PIPE, text=True)
     outs = nasm.stdout
+    lastjmp = 1
+    jumps: dict[str, int] = dict()
     with open(f"{''.join(filename.split('.')[:-1])}.out", "w+b") as outfile:
 
-        def writeInstruction(out: int, noBytes: int = 2) -> bool:
+        def writeSafe(out: bytes) -> bool:
             "writes int to current position in file, also checks for possible overwriting"
-            if int.from_bytes(outfile.read(noBytes), "big") != 0:
+            Oli_pojntr = outfile.tell()
+            if int.from_bytes(outfile.read(2), "big") != 0:
                 print(
                     f"\033[93mOverwriting prevented on {outfile.tell()}\u001b[0m",
                     file=sys.stderr,
                 )
                 return False
-            outfile.write(out.to_bytes(noBytes, "big"))
+            outfile.seek(Oli_pojntr)
+            outfile.write(out)
             return True
 
-        print("--" * 10)
+        print("==" * 10)
         for line in outs.splitlines():
             line = line.strip()
             tokens = line.split(" ")
@@ -33,21 +37,56 @@ def cmp(filename: str) -> bool:
             if len(line) < 3 or line[0] in ["#", "/", "%"]:
                 continue
             if ":" in line:
+                ln = line.split(":")
+                poz = outfile.tell()
+                print(f"{ln[0]} na {hex(poz)} < {hex(lastjmp)}")
+                outfile.seek(lastjmp)
+                jumps[ln[0].strip()] = lastjmp
+                lastjmp += 1
+                writeSafe(poz.to_bytes(2, "big"))
+                outfile.seek(poz)
                 continue
             if ".org" in line:
-                org = line.split(".org")[1].strip()
-                outfile.seek(eval(org), 0)
+                org = eval(line.split(".org")[1].strip())
+                outfile.seek(org, 0)
                 continue
+            if ".db" in line:
+
+                def group2(a):
+                    a = iter(a)
+                    while True:
+                        try:
+                            b = next(a)
+                        except StopIteration:
+                            break
+                        try:
+                            c = next(a)
+                        except StopIteration:
+                            yield bytes((b, 0))
+                            break
+                        yield bytes((b, c))
+
+                db: bytes = eval(line.split(".db")[1].strip())
+                for gg in group2(db):
+                    writeSafe(gg)
+                continue
+
+            def j(arg: str) -> int:
+                return jumps[arg]
+
             com = 1 if tokens[0] == "nand" else 0
             tokens = "".join(tokens[1:]).split(",")
             op1 = eval(tokens[0])
             op2 = eval(tokens[1])
-            out = com % 2 << 1
-            out += op1 % 128 << 9
-            out += op2 % 128 << 2
-            if not writeInstruction(out):
+            out = (com % 2) << 1
+            if not com and len(tokens) >= 3:
+                out |= eval(tokens[2]) % 2
+            out |= (op1 % 128) << 9
+            out |= (op2 % 128) << 2
+            outb: bytes = out.to_bytes(2, "big")
+            if not writeSafe(outb):
                 return False
-        print("--" * 10)
+        print("==" * 10)
         return True
 
 

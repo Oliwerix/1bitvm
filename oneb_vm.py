@@ -6,16 +6,21 @@ import time
 import collections
 
 
+class hook:
+    def __inin__(self):
+        pass
+
+
 class RAM:
     # TODO make stdio
     # in_buff: typing.Generator[bool, None, None]
     # out_buff: collections.deque[bool]
     regs: list[bool]
-    hooks: dict[tuple[int, bool], typing.Callable]
+    hooks: dict[tuple[int, bool], hook]
 
     def __init__(self, addr_spc: int = 1):
         assert addr_spc > 0, "Opala, mau neki ti ne gre ram"
-        self.regs = [False] * (2 ** addr_spc)
+        self.regs = [False] * (2**addr_spc)
 
     def __len__(self) -> int:
         return len(self.regs)
@@ -24,11 +29,11 @@ class RAM:
         "'Nicely' format registers for prinitng"
         return f"{ ''.join(map(lambda x:str(int(x)), self.regs)) }"
 
-    def set_hooks(self, hooks: dict[tuple[int, bool], typing.Callable]):
+    def set_hooks(self, hooks: dict[tuple[int, bool], hook]):
         "bind a hook dict"
         self.hooks = hooks
 
-    def get_hooks(self) -> dict[tuple[int, bool], typing.Callable]:
+    def get_hooks(self) -> dict[tuple[int, bool], hook]:
         "get the current hooks dict"
         return self.hooks
 
