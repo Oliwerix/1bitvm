@@ -33,6 +33,13 @@ def cmp(filename: str) -> bool:
         print("==" * 10)
         for line in nasm.stdout.splitlines():
             line = line.strip()
+            #evaluate python scripts between graves
+            if line.count('`') % 2 == 0 and line.count('`') > 1:
+                splitline = line.split('`')
+                for i, pyMacro in enumerate(splitline[1::2]):
+                    splitline[i*2+1] = str(eval(pyMacro))
+                line = ''.join(splitline)
+                
             tokens = line.split(" ")
             print(line)
             if len(line) < 3 or line[0] in ["#", "/", "%"]:
