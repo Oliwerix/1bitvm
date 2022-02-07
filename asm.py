@@ -52,23 +52,11 @@ def cmp(filename: str) -> bool:
                 continue
             if ".db" in line:
 
-                def group2(a):
-                    a = iter(a)
-                    while True:
-                        try:
-                            b = next(a)
-                        except StopIteration:
-                            break
-                        try:
-                            c = next(a)
-                        except StopIteration:
-                            yield bytes((b, 0))
-                            break
-                        yield bytes((b, c))
-
                 db: bytes = eval(line.split(".db")[1].strip())
-                for gg in group2(db):
+                for gg in (db[i : i + 1] for i in range(0, len(db), 4)):
                     writeSafe(gg)
+                if len(db) % 2 != 0:
+                    writeSafe(bytes((db[len(db) - 1], 0)))
                 continue
 
             def j(arg: str) -> int:
