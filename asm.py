@@ -39,10 +39,9 @@ def cmp(filename: str) -> bool:
                 for i, pyMacro in enumerate(splitline[1::2]):
                     splitline[i*2+1] = str(eval(pyMacro))
                 line = ''.join(splitline)
-                print(line)
                 
             tokens = line.split(" ")
-            print(line, tokens)
+            print(line)
             if len(line) < 3 or line[0] in ["#", "/", "%"]:
                 continue
             if ":" in line:
