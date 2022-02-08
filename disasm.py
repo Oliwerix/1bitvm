@@ -4,10 +4,11 @@
 import sys
 
 def asHex(num, length=2):
-    "formats as hex with padding"
+    "formats as hex with zero padding"
     return "{0:#0{1}x}".format(num, length+2) #+2 to account for 0x
 
-def decmp(filename: str) -> bool:
+def disassm(filename: str) -> bool:
+    "Deasseble input binary"
     with open(filename, "rb") as infile:
         print(bcolors.BOLD+"===================================="+bcolors.ENDC)
         PC = 0 # Program counter is byteNo/2
@@ -35,9 +36,10 @@ def decmp(filename: str) -> bool:
 
 def main():
     "Lol"
-    sys.exit(int(not all(map(decmp, sys.argv[1:]))))
+    sys.exit(int(not all(map(disassm, sys.argv[1:]))))
 
 class bcolors:
+    "vt100 color codes"
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'
