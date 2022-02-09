@@ -2,8 +2,10 @@
 %define c copy
 
 %macro init 1
+    init_tmp:
+    .db by2(labels[%1])
     .org 0x0
-    c jumps[%1], 0, 1
+    c labels["init_tmp"], 0, 1
 %endm
 
 %macro print2 2

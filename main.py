@@ -15,7 +15,7 @@ def main():
     virtual_machine.run(lambda x: x.dump_state(), 20, 0.2)
     # :D
     for opt in sys.argv:
-        if "-i" in opt:
+        if "i" in opt:
             IPython.embed()
 
 
