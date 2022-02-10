@@ -10,8 +10,8 @@ class Op:
     def __str__(self):
         return f"Op({self.x},{self.y})"
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and self.x == other.x
+#    def __eq__(self, other):
+#        return isinstance(other, type(self)) and self.x == other.x
 
 
 class Oparr:
@@ -20,7 +20,9 @@ class Oparr:
             self.val = x
         else:
             self.val = []
-
+        self.update()
+    def update(self):
+        self.evl=evl(self.val)
     def copy(self):
         return Oparr(self.val.copy())
 
@@ -28,7 +30,7 @@ class Oparr:
         return ",".join(map(str, self.val))
 
     def __eq__(self, other):
-        return isinstance(other, type(self)) and (evl(self.val) == evl(other.val))
+        return isinstance(other, type(self)) and (self.evl == other.evl)
 
 
 def padin(x): return 2**(x) - 1
@@ -42,7 +44,7 @@ def printL(arr):
     arr.sort(key=lambda x: evl(x.val))
     for x, a in enumerate(arr):
         print(
-            x, a, tuple(map(lambda x: "{0:0{1}b}".format(x, 2**cln), evl(a.val))))
+            x, a, tuple(map(lambda x: "{0:0{1}b}".format(x, 2**cln), a.evl)))
 
 
 def evl(arr: list):
@@ -67,13 +69,18 @@ def ident(n: int) -> list:
 cln = 3
 cells = ident(cln)
 
-comb = [Oparr()]
+comb = [
+        Oparr(),
+        #Oparr([Op(1,2),Op(1,1),Op(1,2),Op(1,1)])
+        ]
 
 to_do = True
 while to_do:
     comb_l = comb.copy()
-    print(f"{--*10}{len(comb_l)}:{len(comb_l[-1].val)}")
-    # printL(comb_l)
+    print(f"{'--'*10}{len(comb_l)}:{len(comb_l[-1].val)}")
+    printL(list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb)))
+    print(cells[2])
+    #printL(comb_l)
     to_do = False
     opts = range(len(cells))
     for pos in comb_l:
@@ -81,13 +88,16 @@ while to_do:
             bos = pos.copy()
             tmp = Op(x, y)
             bos.val.append(tmp)
+            bos.update()
             if bos not in comb:
                 comb.append(bos)
                 to_do = True
 
-print("=="*10)
+print("=="*10+"xor, ki pusti c")
 # printL(filter(lambda x: evl(x.val)[0] == 0b11111111, comb))
 # printL(filter(lambda x: evl(x.val)[0] == 0b00000000, comb))
-printL(list(filter(lambda x: evl(x.val)[0] == 0b01100110, comb)))
-# printL(comb)
+# printL(list(filter(lambda x: x.evl[0] == 0b01100110, comb)))
+printL(list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb)))
+print("=="*10)
+printL(comb)
 print(len(comb), 2**(cln*(2**cln)))
