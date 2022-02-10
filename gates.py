@@ -72,7 +72,7 @@ comb = [Oparr()]
 to_do = True
 while to_do:
     comb_l = comb.copy()
-    print("--"*10+str(len(comb_l)))
+    print(f"{--*10}{len(comb_l)}:{len(comb_l[-1].val)}")
     # printL(comb_l)
     to_do = False
     opts = range(len(cells))
@@ -90,4 +90,4 @@ print("=="*10)
 # printL(filter(lambda x: evl(x.val)[0] == 0b00000000, comb))
 printL(list(filter(lambda x: evl(x.val)[0] == 0b01100110, comb)))
 # printL(comb)
-print(len(comb), 2**(2*2**cln))
+print(len(comb), 2**(cln*(2**cln)))
