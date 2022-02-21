@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pypy3
 import itertools
 
 
@@ -9,6 +9,7 @@ class Op:
 
     def __str__(self):
         return f"Op({self.x},{self.y})"
+
 
 #    def __eq__(self, other):
 #        return isinstance(other, type(self)) and self.x == other.x
@@ -21,8 +22,10 @@ class Oparr:
         else:
             self.val = []
         self.update()
+
     def update(self):
-        self.evl=evl(self.val)
+        self.evl = evl(self.val)
+
     def copy(self):
         return Oparr(self.val.copy())
 
@@ -33,7 +36,8 @@ class Oparr:
         return isinstance(other, type(self)) and (self.evl == other.evl)
 
 
-def padin(x): return 2**(x) - 1
+def padin(x):
+    return 2 ** (x) - 1
 
 
 def nand(A: int, B: int, ln: int) -> int:
@@ -43,8 +47,7 @@ def nand(A: int, B: int, ln: int) -> int:
 def printL(arr):
     arr.sort(key=lambda x: evl(x.val))
     for x, a in enumerate(arr):
-        print(
-            x, a, tuple(map(lambda x: "{0:0{1}b}".format(x, 2**cln), a.evl)))
+        print(x, a, tuple(map(lambda x: "{0:0{1}b}".format(x, 2**cln), a.evl)))
 
 
 def evl(arr: list):
@@ -57,10 +60,8 @@ def evl(arr: list):
 def ident(n: int) -> list:
     return [
         int(
-            "".join(
-                "1" if ((x//(2**a)) % 2) == 0 else "0"
-                for x in range(2**n)),
-            2
+            "".join("1" if ((x // (2**a)) % 2) == 0 else "0" for x in range(2**n)),
+            2,
         )
         for a in range(0, n)
     ]
@@ -70,17 +71,19 @@ cln = 3
 cells = ident(cln)
 
 comb = [
-        Oparr(),
-        #Oparr([Op(1,2),Op(1,1),Op(1,2),Op(1,1)])
-        ]
+    Oparr(),
+    # Oparr([Op(1,2),Op(1,1),Op(1,2),Op(1,1)])
+]
 
 to_do = True
 while to_do:
     comb_l = comb.copy()
     print(f"{'--'*10}{len(comb_l)}:{len(comb_l[-1].val)}")
-    printL(list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb)))
+    printL(
+        list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb))
+    )
     print(cells[2])
-    #printL(comb_l)
+    # printL(comb_l)
     to_do = False
     opts = range(len(cells))
     for pos in comb_l:
@@ -93,11 +96,11 @@ while to_do:
                 comb.append(bos)
                 to_do = True
 
-print("=="*10+"xor, ki pusti c")
+print("==" * 10 + "xor, ki pusti c")
 # printL(filter(lambda x: evl(x.val)[0] == 0b11111111, comb))
 # printL(filter(lambda x: evl(x.val)[0] == 0b00000000, comb))
 # printL(list(filter(lambda x: x.evl[0] == 0b01100110, comb)))
 printL(list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb)))
-print("=="*10)
+print("==" * 10)
 printL(comb)
-print(len(comb), 2**(cln*(2**cln)))
+print(len(comb), 2 ** (cln * (2**cln)))

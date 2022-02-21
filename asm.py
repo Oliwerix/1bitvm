@@ -39,14 +39,20 @@ def write_inst(outfile: typing.IO, line: str, loc: dict) -> bool:
     "interpret line and write as instruction"
     outfile.seek(math.ceil((outfile.tell() % 2) / 2), 1)
     tokens = line.split(" ")
-    com = 1 if tokens[0] == "nand" else 0
+    xor = 0
+    if tokens[0] == "xor":
+        com = 1
+        xor = 1
+    else:
+        com = 1 if tokens[0] == "nand" else 0
     tokens = tuple(map(str.strip, "".join(tokens[1:]).split(",")))
     op1 = eval(tokens[0], globals(), loc)
     op2 = eval(tokens[1], globals(), loc)
     out = (com % 2) << 1
-    # če ni nand in je podan magic bit
     if len(tokens) >= 3 and len(tokens[2]) > 0:
         out |= eval(tokens[2], globals(), loc) % 2
+    if xor:
+        out |= 1
     out |= (op1 % 128) << 9
     out |= (op2 % 128) << 2
     outb: bytes = out.to_bytes(2, "big")
