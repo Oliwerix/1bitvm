@@ -1,4 +1,4 @@
 [MASTER]
 persistent=yes
 suggestion-mode=yes
-disable=eval-used
+disable=eval-used, global-statement

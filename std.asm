@@ -1,5 +1,6 @@
 %define a nand
-%define c copy
+%define c16 copy
+%define nop copy 0,0,0
 
 %macro init 1
     init_tmp:
@@ -8,8 +9,19 @@
     c labels["init_tmp"], 0, 1
 %endm
 
+%macro get_in 1
+get_in_label:
+    xor IN_AV, 16-2
+    xor 16-2,16-2
+%endm
+
+%macro cpy 2
+    xor %1,%1
+    xor %1,%2
+%endm
+
 %macro print2 2
-    c %1, %2, 1
+    c16 %1, %2, 1
     a %2 + 0 , 0x14
     a %2 + 1 , 0x14
     a %2 + 2 , 0x14

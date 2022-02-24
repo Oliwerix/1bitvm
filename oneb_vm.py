@@ -3,20 +3,27 @@
 
 import typing
 import time
-import collections
+
+# import collections
 
 
-class hook:
+class Hook:
+    "creates a RAM hook"
+
     def __inin__(self):
+        pass
+
+    def evl(self, cell: int, write: bool):
         pass
 
 
 class RAM:
+    "onebit ram storage and managment class"
     # TODO make stdio
     # in_buff: typing.Generator[bool, None, None]
     # out_buff: collections.deque[bool]
     regs: list[bool]
-    hooks: dict[tuple[int, bool], hook]
+    hooks: dict[tuple[int, bool], Hook]
 
     def __init__(self, addr_spc: int = 1):
         assert addr_spc > 0, "Opala, mau neki ti ne gre ram"
@@ -29,11 +36,11 @@ class RAM:
         "'Nicely' format registers for prinitng"
         return f"{ ''.join(map(lambda x:str(int(x)), self.regs)) }"
 
-    def set_hooks(self, hooks: dict[tuple[int, bool], hook]):
+    def set_hooks(self, hooks: dict[tuple[int, bool], Hook]):
         "bind a hook dict"
         self.hooks = hooks
 
-    def get_hooks(self) -> dict[tuple[int, bool], hook]:
+    def get_hooks(self) -> dict[tuple[int, bool], Hook]:
         "get the current hooks dict"
         return self.hooks
 
@@ -71,6 +78,7 @@ class RAM:
 
 
 class PGM:
+    "Programm memory storage class"
     prgm: bytearray
 
     def __init__(self):
@@ -95,7 +103,8 @@ class PGM:
         return self.prgm[i] << 8 | self.prgm[i + 1] if i < len(self.prgm) else 0
 
     def set(self, i: int, val: bytes):
-        pass
+        "set mem at adress"
+        assert False, "Not implemented!"
 
 
 class VirtM:
@@ -112,6 +121,7 @@ class VirtM:
         return "[ ._. ] <( Prosim ne printaj me)"
 
     def load(self, filename: str):
+        "load programm to machine"
         self.pgm.load(filename)
 
     def run(self, after_step: typing.Callable = None, itr: int = -1, delay: int = -1):
@@ -157,5 +167,6 @@ class VirtM:
 
     def dump_state(self):
         "Will dump the state of vm to stdout"
-        print(format(self.ram.get_pc(), "0=4x"), end=" ")
+        self.pgm.dump_command(self.ram.get_pc())
+        print(format(self.ram.get_pc(), "0=4x"), end=":")
         print(self.ram)

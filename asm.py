@@ -61,6 +61,15 @@ def write_inst(outfile: typing.IO, line: str, loc: dict) -> bool:
     return True
 
 
+def alignto(outfile: typing.IO, length: int, pattern: int):
+    "align PC to next pattern"
+    here: int = outfile.tell()
+    mask: int = 2**length - 1
+    if here & mask < pattern:
+        return here & ~mask | pattern & mask
+    return (((here >> length) + 1) << length) & ~mask | pattern & mask
+
+
 def by2(arg: int) -> bytes:
     "helper function that casts ints(?) to 2 bytes"
     return arg.to_bytes(2, "big")
@@ -112,6 +121,8 @@ def main():
         if opt.startswith("-") and "d" in opt:
             global DEBUG
             DEBUG = True
+        if opt.startswith("-") and "n" in opt:
+            return
     sys.exit(
         int(not all(map(cmp, filter(lambda x: not x.startswith("-"), sys.argv[1:]))))
     )
