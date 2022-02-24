@@ -52,12 +52,10 @@ class RAM:
 
     def get(self, i: int) -> bool:
         "return register i"
-        self.run_hooks(i, False)
         return self.regs[i]
 
     def set(self, i: int, val: bool):
         "set register i to val"
-        self.run_hooks(i, True)
         self.regs[i] = val
 
     def get_pc(self) -> int:
@@ -92,12 +90,23 @@ class PGM:
     def dump_command(self, ins: int):
         "tries to read the currnt command"
         inst = self.get(ins)
-        opp = "nand" if inst & 0x2 else "copy2b"
+        opp = inst & 0x2
         adr0 = (inst & 0xFE00) >> 9
         adr1 = (inst & 0x01FC) >> 2
-        print(f"{hex(ins)} : {opp} : {hex(adr0)} -> {hex(adr1)}")
+        meta = inst & 0x1
+        if opp:
+            if meta:
+                opps = "xor"
+            else:
+                opps = "nand"
+        else:
+            if meta:
+                opps = "cppm"
+            else:
+                opps = "copy"
+        print(f"{hex(ins)} : {opps} : {hex(adr0)} -> {hex(adr1)}")
 
-    def get(self, i: int):
+    def get(self, i: int) -> int:
         "get the 'i' instruction from PRGMEM"
         i *= 2
         return self.prgm[i] << 8 | self.prgm[i + 1] if i < len(self.prgm) else 0
@@ -142,28 +151,41 @@ class VirtM:
         opp = inst & 0x2
         adr0 = (inst & 0xFE00) >> 9
         adr1 = (inst & 0x01FC) >> 2
+        meta = inst & 0x1
         if opp:
-            self.opp1(adr0, adr1)
+            self.opp1(adr0, adr1, meta)
         else:
             if adr0 == adr1 == 0:
                 return True
-            self.opp0(adr0, adr1)
+            self.opp0(adr0, adr1, meta)
         if prgm_cnt == self.ram.get_pc():
             return False
         return True
 
     # TODO bring opps up to spec!
-    def opp0(self, addr1: int, addr2: int):
+    def opp0(self, addr1: int, addr2: int, meta: int):
         "Copy 2 bytes"
+        buff: list[bool] = []
+        if not meta:
+            for off in range(16):
+                buff.append(self.ram.get(addr1 + off))
+        else:
+            data = self.pgm.get(addr1)
+            for off in range(16):
+                buff.insert(0, bool(data & 1))
+                data >>= 1
         for off in range(16):
-            self.ram.set(
-                addr2 + off,
-                self.ram.get(addr1 + off) if off < len(self.ram) else True,
-            )
+            self.ram.set(addr2 + off, buff.pop(0))
 
-    def opp1(self, addr1: int, addr2: int):
+    def opp1(self, addr1: int, addr2: int, meta: int):
         "Nand two places, rez to addr2"
-        self.ram.set(addr2, not (self.ram.get(addr1) and self.ram.get(addr2)))
+        # breakpoint()
+        self.ram.set(
+            addr2,
+            (not (self.ram.get(addr1) and self.ram.get(addr2)))
+            if not meta
+            else (self.ram.get(addr1) ^ self.ram.get(addr2)),
+        )
 
     def dump_state(self):
         "Will dump the state of vm to stdout"

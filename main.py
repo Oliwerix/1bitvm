@@ -12,10 +12,10 @@ def main():
     virtual_machine = oneb_vm.VirtM()
     virtual_machine.ram.set_hooks({})
     virtual_machine.load("example2.out")
-    virtual_machine.run(lambda x: x.dump_state(), 20, 2)
+    virtual_machine.run(lambda x: x.dump_state(), 10, 4)
     # :D
     for opt in sys.argv:
-        if "i" in opt:
+        if opt.startswith("-") and "i" in opt:
             IPython.embed()
 
 

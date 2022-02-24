@@ -16,7 +16,7 @@ def write_safe(outfile: typing.IO, data: bytes) -> bool:
     assert len(data) == 2, "Something wong!"
     if int.from_bytes(outfile.read(2), "big") != 0:
         print(
-            f"\033[33mOverwriting prevented on {outfile.tell():#06x}\033[0m",
+            f"\033[33mOverwriting prevented on {outfile.tell()//2:#06x}\033[0m",
             file=sys.stderr,
         )
         return False
@@ -61,11 +61,10 @@ def write_inst(outfile: typing.IO, line: str, loc: dict) -> bool:
     return True
 
 
-def alignto(outfile: typing.IO, length: int, pattern: int):
+def alignto(here: int, length: int, pattern: int):
     "align PC to next pattern"
-    here: int = outfile.tell()
     mask: int = 2**length - 1
-    if here & mask < pattern:
+    if here & mask <= pattern:
         return here & ~mask | pattern & mask
     return (((here >> length) + 1) << length) & ~mask | pattern & mask
 
@@ -86,10 +85,13 @@ def cmp(filename: str) -> bool:
         print("==" * 3 + filename + "==" * 3)
         for num, line in enumerate(nasm.stdout.splitlines()):
             line = line.strip()
+            here = outfile.tell()
             if DEBUG:
-                print(f"{num:6d} : {outfile.tell()//2:#6x} : {line}")
+                print(f"{num:6d} : {here//2:#6x} : {line}")
             line = py_eval(line, locals())
-            if len(line) < 3 or line[0] in ["#", "/", "%"]:  # ignore
+            if (
+                len(line) < 3 or (line[0] in ["#", "/", "%"]) or line == "None"
+            ):  # ignore
                 continue
             if ":" in line:  # label
                 label_name = line.split(":")[0].strip()
@@ -97,6 +99,9 @@ def cmp(filename: str) -> bool:
                 if DEBUG:
                     print(f"{label_name} na {poz:#06x}")
                 labels[label_name] = poz
+            elif ".orgr" in line:  # jump in out file
+                org = eval(line.removeprefix(".orgr").strip())
+                outfile.seek(org, 1)
             elif ".org" in line:  # jump in out file
                 org = eval(line.removeprefix(".org").strip())
                 outfile.seek(org)
@@ -110,6 +115,7 @@ def cmp(filename: str) -> bool:
                 fail = not write_inst(outfile, line, locals())
             # j: typing.Callable[str, int] = lambda arg: jumps[arg]
             if fail:
+                # print(nasm.stdout)
                 return False
 
         return True
