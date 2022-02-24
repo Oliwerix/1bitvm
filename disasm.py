@@ -26,7 +26,7 @@ def disassm(filename: str) -> bool:
                 nops = 1
             else:
                 nops = 0
-                op1 = (instruction & 0x7F00) >> 9
+                op1 = (instruction & 0xFE00) >> 9
                 op2 = (instruction & 0x01FC) >> 2
                 ins = (
                     Bcolors.OKGREEN + "a" + Bcolors.ENDC
