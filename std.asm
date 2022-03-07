@@ -2,40 +2,50 @@
 %define c16 copy
 %define nop copy 0,0,0
 
-%macro init 1
-    init_tmp:
-    .db by2(labels[%1])
-    .org 0x0
-    c labels["init_tmp"], 0, 1
+%macro not 1
+    a %1,%1
 %endm
 
-%macro get_in 1
-get_in_label:
-    xor IN_AV, 16-2
-    xor 16-2,16-2
+%macro init 1
+    .org 2
+    .db by2(labels[%1])
+    .org 0
+    c 1, 0, 1
+%endm
+
+    ;; wait for (reg), trash
+%macro wait_for 2
+    //waitfor
+    .org alignto(here,4,0)
+    cpy %1, %2
+    not %2
+    a %2, 13
+%endm
+
+%macro wait_forn 2
+    //waitforn
+    .org alignto(here,4,0)
+    cpy %1, %2
+    nop
+    a %2, 13
+%endm
+
+    ;; input, trash
+%macro set_out_b 2
+    //setoutb
+    wait_forn OU_A, %2
+    cpy %1,OU
+    not OU_A
+%endm
+    ;; output, trash
+%macro get_in_b 2
+    //getinb
+    wait_for IN_A, %2
+    cpy IN, %1
 %endm
 
 %macro cpy 2
-    xor %1,%1
+    xor %2,%2
     xor %1,%2
 %endm
 
-%macro print2 2
-    c16 %1, %2, 1
-    a %2 + 0 , 0x14
-    a %2 + 1 , 0x14
-    a %2 + 2 , 0x14
-    a %2 + 3 , 0x14
-    a %2 + 4 , 0x14
-    a %2 + 5 , 0x14
-    a %2 + 6 , 0x14
-    a %2 + 7 , 0x14
-    a %2 + 8 , 0x14
-    a %2 + 9 , 0x14
-    a %2 + 10, 0x14
-    a %2 + 11, 0x14
-    a %2 + 12, 0x14
-    a %2 + 13, 0x14
-    a %2 + 14, 0x14
-    a %2 + 15, 0x14
-%endm

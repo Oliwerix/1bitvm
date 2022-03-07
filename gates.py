@@ -97,7 +97,6 @@ while to_do:
     for pos in comb_l:
         for x, y in itertools.product(opts, opts):
             for m in range(2):
-
                 bos = pos.copy()
                 tmp = Op(x, y, m)
                 bos.val.append(tmp)
@@ -107,8 +106,8 @@ while to_do:
                     to_do = True
 
 print("==" * 10)
-printL(filter(lambda x: x.evl[0] == cells[0] and x.evl[1] == cells[0], comb))
-# printL(filter(lambda x: evl(x.val)[0] == 0b00000000, comb))
+#printL(filter(lambda x: x.evl[0] == cells[0] and x.evl[1] == cells[0], comb))
+printL(filter(lambda x: x.evl[0] == 0b0001, comb))
 # printL(list(filter(lambda x: x.evl[0] == 0b01100110, comb)))
 # printL(list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb)))
 print("==" * 10)

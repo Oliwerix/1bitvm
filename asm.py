@@ -9,6 +9,11 @@ import math
 PAGE = 2**7
 DEBUG = False
 
+IN = 0x10
+IN_A = 0x11
+OU = 0x12
+OU_A = 0x13
+
 
 def write_safe(outfile: typing.IO, data: bytes) -> bool:
     "writes int to current position in file, also checks for possible overwriting"

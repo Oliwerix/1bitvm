@@ -6,20 +6,101 @@ import time
 
 # import collections
 
+IN = 0x10
+IN_A = 0x11
+OU = 0x12
+OU_A = 0x13
+
+
+class Bcolors:
+    "vt100 color codes"
+    HEADER = "\033[35m"
+    OKBLUE = "\033[34m"
+    OKCYAN = "\033[36m"
+    OKGREEN = "\033[32m"
+    WARNING = "\033[33m"
+    FAIL = "\033[31m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+
 
 class Hook:
     "creates a RAM hook"
 
-    def __inin__(self):
+    def __init__(self):
         pass
 
-    def evl(self, cell: int, write: bool):
-        pass
+    def evl(self, that, cell: int, write: bool, data: bool):
+        "eval a hook instead of read or write op"
+
+    def flush(self, that):
+        "flush je hook implemented"
+
+
+class STDOUT(Hook):
+    "ram HOOK for writing"
+    buff: list[bool]
+
+    def __init__(self):
+        super().__init__()
+        self.buff = []
+
+    def evl(self, that, cell: int, write: bool, data: bool):
+        "eval for hook"
+        if write:
+            if data:
+                self.buff.append(that.get(OU))
+                self.flush(that)
+                print(f"--> {self.buff}")
+        return False
+
+    def flush(self, that):
+        "try to flush the buffer"
+        while len(self.buff) >= 8:
+            out: int = 0
+            for _ in range(8):
+                out <<= 1
+                out |= self.buff.pop(0)
+            print(out.to_bytes(1, "big").decode(), end="\n")
+
+
+class STDIN(Hook):
+    "ram HOOK for reading"
+    buff: list[bool]
+
+    def __init__(self):
+        super().__init__()
+        self.buff = []
+
+    def evl(self, that, cell: int, write: bool, data: bool):
+        "eval for hook"
+        print(f"<-- {self.buff}")
+        if not self.buff:
+            self.flush(that)
+        if not write:
+            return bool(self.buff)
+        if not data:
+            if self.buff:
+                self.nxt(that)
+            return self.buff
+
+    def nxt(self, that):
+        "set the next buff to bit"
+        self.buff.pop(0)
+        if self.buff:
+            that.set(IN, self.buff[0])
+
+    def flush(self, that):
+        "try to flush the buffer"
+        inp = input(">").encode()
+        if len(inp) > 0:
+            self.buff = [bool(x & (1 << y)) for x in inp for y in range(7, -1, -1)]
+            that.set(IN, self.buff[1])
 
 
 class RAM:
     "onebit ram storage and managment class"
-    # TODO make stdio
     # in_buff: typing.Generator[bool, None, None]
     # out_buff: collections.deque[bool]
     regs: list[bool]
@@ -34,6 +115,10 @@ class RAM:
 
     def __str__(self):
         "'Nicely' format registers for prinitng"
+        return gimmi_regs()
+
+    def gimmi_regs(self, first=-1, second=-1):
+        "nice formaty action"
         return f"{ ''.join(map(lambda x:str(int(x)), self.regs)) }"
 
     def set_hooks(self, hooks: dict[tuple[int, bool], Hook]):
@@ -44,19 +129,22 @@ class RAM:
         "get the current hooks dict"
         return self.hooks
 
-    def run_hooks(self, reg: int, to_regs: bool):
+    def evl_hooks(self, reg: int, to_regs: bool, data: bool) -> bool:
         "run necesary hooks"
-        if (reg, to_regs) in self.hooks:
-            # TODO
-            pass
+        return self.hooks[(reg, to_regs)].evl(self, reg, to_regs, data)
 
     def get(self, i: int) -> bool:
         "return register i"
+        if (i, False) in self.hooks:
+            return self.evl_hooks(i, False, None)
         return self.regs[i]
 
     def set(self, i: int, val: bool):
         "set register i to val"
-        self.regs[i] = val
+        if (i, True) in self.hooks:
+            self.evl_hooks(i, True, val)
+        else:
+            self.regs[i] = val
 
     def get_pc(self) -> int:
         "returns the program counter"
@@ -69,10 +157,10 @@ class RAM:
     def inc_pc(self):
         "will increase the programm counter by 1"
         for i in range(15, -1, -1):
-            if self.get(i) == 0:
-                self.set(i, 1)
+            if self.get(i) == False:
+                self.set(i, True)
                 break
-            self.set(i, 0)
+            self.set(i, False)
 
 
 class PGM:
@@ -96,7 +184,7 @@ class PGM:
         meta = inst & 0x1
         if opp:
             if meta:
-                opps = "xor"
+                opps = "xor "
             else:
                 opps = "nand"
         else:
@@ -113,6 +201,7 @@ class PGM:
 
     def set(self, i: int, val: bytes):
         "set mem at adress"
+        print(f"    {i}:{self.get(i)} not set to {val}")
         assert False, "Not implemented!"
 
 
@@ -124,6 +213,16 @@ class VirtM:
 
     def __init__(self):
         self.ram = RAM(7)
+        hook_in = STDIN()
+        hook_out = STDOUT()
+        self.ram.set_hooks(
+            {
+                (IN_A, False): hook_in,
+                (IN_A, True): hook_in,
+                (OU_A, False): hook_out,
+                (OU_A, True): hook_out,
+            }
+        )
         self.pgm = PGM()
 
     def __str__(self):
@@ -133,7 +232,7 @@ class VirtM:
         "load programm to machine"
         self.pgm.load(filename)
 
-    def run(self, after_step: typing.Callable = None, itr: int = -1, delay: int = -1):
+    def run(self, itr: int = -1, after_step: typing.Callable = None, delay: int = -1):
         "run until halt"
 
         while self.step() and itr != 0:
@@ -159,10 +258,10 @@ class VirtM:
                 return True
             self.opp0(adr0, adr1, meta)
         if prgm_cnt == self.ram.get_pc():
+            print("---")
             return False
         return True
 
-    # TODO bring opps up to spec!
     def opp0(self, addr1: int, addr2: int, meta: int):
         "Copy 2 bytes"
         buff: list[bool] = []
@@ -189,6 +288,7 @@ class VirtM:
 
     def dump_state(self):
         "Will dump the state of vm to stdout"
-        self.pgm.dump_command(self.ram.get_pc())
+        command = self.ram.get_pc()
+        self.pgm.dump_command(command)
         print(format(self.ram.get_pc(), "0=4x"), end=":")
         print(self.ram)
