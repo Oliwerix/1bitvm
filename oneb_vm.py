@@ -52,7 +52,7 @@ class STDOUT(Hook):
             if data:
                 self.buff.append(that.get(OU))
                 self.flush(that)
-                print(f"--> {self.buff}")
+                # print(f"--> {self.buff}")
         return False
 
     def flush(self, that):
@@ -62,7 +62,7 @@ class STDOUT(Hook):
             for _ in range(8):
                 out <<= 1
                 out |= self.buff.pop(0)
-            print(out.to_bytes(1, "big").decode(), end="\n")
+            print(out.to_bytes(1, "big").decode(), end="")
 
 
 class STDIN(Hook):
@@ -75,15 +75,15 @@ class STDIN(Hook):
 
     def evl(self, that, cell: int, write: bool, data: bool):
         "eval for hook"
-        print(f"<-- {self.buff}")
         if not self.buff:
             self.flush(that)
+        # print(f"<-- {self.buff}")
         if not write:
             return bool(self.buff)
         if not data:
             if self.buff:
                 self.nxt(that)
-            return self.buff
+            return bool(self.buff)
 
     def nxt(self, that):
         "set the next buff to bit"
@@ -93,10 +93,10 @@ class STDIN(Hook):
 
     def flush(self, that):
         "try to flush the buffer"
-        inp = input(">").encode()
+        inp = input("\n> ").encode()
         if len(inp) > 0:
             self.buff = [bool(x & (1 << y)) for x in inp for y in range(7, -1, -1)]
-            that.set(IN, self.buff[1])
+            that.set(IN, self.buff[0])
 
 
 class RAM:
@@ -136,7 +136,7 @@ class RAM:
     def get(self, i: int) -> bool:
         "return register i"
         if (i, False) in self.hooks:
-            return self.evl_hooks(i, False, None)
+            return self.evl_hooks(i, False, False)
         return self.regs[i]
 
     def set(self, i: int, val: bool):
@@ -201,7 +201,7 @@ class PGM:
 
     def set(self, i: int, val: bytes):
         "set mem at adress"
-        print(f"    {i}:{self.get(i)} not set to {val}")
+        print(f"    {i}:{self.get(i)!r} not set to {val!r}")
         assert False, "Not implemented!"
 
 
