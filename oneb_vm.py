@@ -84,6 +84,7 @@ class STDIN(Hook):
             if self.buff:
                 self.nxt(that)
             return bool(self.buff)
+        return False
 
     def nxt(self, that):
         "set the next buff to bit"
@@ -115,7 +116,7 @@ class RAM:
 
     def __str__(self):
         "'Nicely' format registers for prinitng"
-        return gimmi_regs()
+        return self.gimmi_regs()
 
     def gimmi_regs(self, first=-1, second=-1):
         "nice formaty action"
@@ -157,7 +158,7 @@ class RAM:
     def inc_pc(self):
         "will increase the programm counter by 1"
         for i in range(15, -1, -1):
-            if self.get(i) == False:
+            if not self.get(i):
                 self.set(i, True)
                 break
             self.set(i, False)
