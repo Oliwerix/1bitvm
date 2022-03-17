@@ -76,7 +76,7 @@ def ident(n: int) -> list:
     ]
 
 
-cln = 2
+cln = 3
 cells = ident(cln)
 
 comb = [
@@ -85,12 +85,20 @@ comb = [
 ]
 
 to_do = True
+print(list(map(bin, cells)))
 while to_do:
     comb_l = comb.copy()
     print(f"{'--'*10}{len(comb_l)}:{len(comb_l[-1].val)}")
-    printL(
-        list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb))
+    l = list(
+        filter(
+            lambda x: x.evl[1] == cells[0] ^ cells[1] ^ cells[2]
+            and x.evl[2] == (cells[0] & cells[1]) | (cells[2] & (cells[0] & cells[1])),
+            comb,
+        )
     )
+    printL(l)
+    if l:
+        break
     # printL(comb_l)
     to_do = False
     opts = range(len(cells))
@@ -106,7 +114,7 @@ while to_do:
                     to_do = True
 
 print("==" * 10)
-#printL(filter(lambda x: x.evl[0] == cells[0] and x.evl[1] == cells[0], comb))
+# printL(filter(lambda x: x.evl[0] == cells[0] and x.evl[1] == cells[0], comb))
 printL(filter(lambda x: x.evl[0] == 0b0001, comb))
 # printL(list(filter(lambda x: x.evl[0] == 0b01100110, comb)))
 # printL(list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb)))
