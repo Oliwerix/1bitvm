@@ -1,5 +1,6 @@
 #!/usr/bin/env pypy3
 import itertools
+import multiprocessing as mp
 
 
 class Op:
@@ -84,24 +85,7 @@ comb = [
     # Oparr([Op(1,2),Op(1,1),Op(1,2),Op(1,1)])
 ]
 
-to_do = True
-print(list(map(bin, cells)))
-while to_do:
-    comb_l = comb.copy()
-    print(f"{'--'*10}{len(comb_l)}:{len(comb_l[-1].val)}")
-    l = list(
-        filter(
-            lambda x: x.evl[1] == cells[0] ^ cells[1] ^ cells[2]
-            and x.evl[2] == (cells[0] & cells[1]) | (cells[2] & (cells[0] ^ cells[1]))
-            and x.evl[0]==cells[0],
-            comb,
-        )
-    )
-    printL(l)
-    if l:
-        break
-    # printL(comb_l)
-    to_do = False
+def lookup(q,comb_l):
     opts = range(len(cells))
     for pos in comb_l:
         for x, y in itertools.product(opts, opts):
@@ -111,9 +95,37 @@ while to_do:
                 bos.val.append(tmp)
                 bos.update()
                 if bos not in comb:
-                    comb.append(bos)
-                    to_do = True
+                    q.put(bos)
 
+threads=16
+to_do = True
+print(list(map(bin, cells)))
+while to_do:
+    comb_l = comb.copy()
+    print(f"{'--'*10}{len(comb_l)}:{len(comb_l[-1].val)}")
+    l = list(
+        filter(
+            lambda x: x.evl[1] == cells[0] ^ cells[1] ^ cells[2]
+            and x.evl[2] == (cells[0] & cells[1]) | (cells[2] & (cells[0] ^ cells[1])),
+            comb,
+        )
+    )
+    printL(l)
+    if l:
+        break
+    to_do = False
+    iters=[itertools.islice(comb_l,x,None,threads) for x in range(threads)]
+    proc=[]
+    q = mp.Queue()
+    for i in iters:
+        proc.append(mp.Process(target=lookup,args=(q,i)))
+    for i in proc:
+        i.start()
+    for i in proc:
+        i.join()
+    to_do = not q.empty()
+    while not q.empty():
+        comb.append(q.get())
 print("==" * 10)
 # printL(filter(lambda x: x.evl[0] == cells[0] and x.evl[1] == cells[0], comb))
 # printL(filter(lambda x: x.evl[0] == 0b0001, comb))
