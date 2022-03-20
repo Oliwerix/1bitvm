@@ -21,6 +21,8 @@
     set_out_b %2 + 15, 0x14
 %endm
 
+.db b"aaaaaaaaaaaaaaaaa"
+
 word:
 .db b"Nig\n"
 
