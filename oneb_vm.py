@@ -75,16 +75,15 @@ class STDIN(Hook):
 
     def evl(self, that, cell: int, write: bool, data: bool):
         "eval for hook"
+        # print(f"<-- {self.buff}")
         if not self.buff:
             self.flush(that)
-        # print(f"<-- {self.buff}")
         if not write:
             return bool(self.buff)
         if not data:
             if self.buff:
                 self.nxt(that)
-            return bool(self.buff)
-        return False
+            return self.buff
 
     def nxt(self, that):
         "set the next buff to bit"
@@ -94,10 +93,10 @@ class STDIN(Hook):
 
     def flush(self, that):
         "try to flush the buffer"
-        inp = input("\n> ").encode()
+        inp = input(">").encode()
         if len(inp) > 0:
             self.buff = [bool(x & (1 << y)) for x in inp for y in range(7, -1, -1)]
-            that.set(IN, self.buff[0])
+            that.set(IN, self.buff[1])
 
 
 class RAM:
@@ -118,7 +117,7 @@ class RAM:
         "'Nicely' format registers for prinitng"
         return self.gimmi_regs()
 
-    def gimmi_regs(self, first=-1, second=-1):
+    def gimmi_regs(self):
         "nice formaty action"
         return f"{ ''.join(map(lambda x:str(int(x)), self.regs)) }"
 
@@ -158,7 +157,7 @@ class RAM:
     def inc_pc(self):
         "will increase the programm counter by 1"
         for i in range(15, -1, -1):
-            if not self.get(i):
+            if self.get(i) == False:
                 self.set(i, True)
                 break
             self.set(i, False)
@@ -291,5 +290,5 @@ class VirtM:
         "Will dump the state of vm to stdout"
         command = self.ram.get_pc()
         self.pgm.dump_command(command)
-        print(format(self.ram.get_pc(), "0=4x"), end=":")
+        # print(format(self.ram.get_pc(), "0=4x"), end=":")
         print(self.ram)

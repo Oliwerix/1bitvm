@@ -10,10 +10,15 @@ import oneb_vm
 DEBUG = False
 
 
+def dbg(x: oneb_vm.VirtM):
+    x.dump_state()
+    input()
+
+
 def main():
     "What do i put into docstrings?"
     virtual_machine = oneb_vm.VirtM()
-    virtual_machine.load("example2.out")
+    virtual_machine.load("example3.out")
     # :D
     for opt in sys.argv:
         if opt.startswith("-") and "d" in opt:
@@ -22,7 +27,7 @@ def main():
         # if opt.startswith("-") and "i" in opt:
         # IPython.embed()
     if DEBUG:
-        virtual_machine.run(210, lambda x: x.dump_state())
+        virtual_machine.run(210, dbg)
     else:
         virtual_machine.run(-1)
 
