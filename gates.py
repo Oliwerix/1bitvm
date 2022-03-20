@@ -92,7 +92,8 @@ while to_do:
     l = list(
         filter(
             lambda x: x.evl[1] == cells[0] ^ cells[1] ^ cells[2]
-            and x.evl[2] == (cells[0] & cells[1]) | (cells[2] & (cells[0] & cells[1])),
+            and x.evl[2] == (cells[0] & cells[1]) | (cells[2] & (cells[0] ^ cells[1]))
+            and x.evl[0]==cells[0],
             comb,
         )
     )
@@ -115,8 +116,8 @@ while to_do:
 
 print("==" * 10)
 # printL(filter(lambda x: x.evl[0] == cells[0] and x.evl[1] == cells[0], comb))
-printL(filter(lambda x: x.evl[0] == 0b0001, comb))
+# printL(filter(lambda x: x.evl[0] == 0b0001, comb))
 # printL(list(filter(lambda x: x.evl[0] == 0b01100110, comb)))
 # printL(list(filter(lambda x: x.evl[0] == 0b01100110 and x.evl[2] == cells[2], comb)))
 print("==" * 10)
-printL(comb)
+# printL(comb)
