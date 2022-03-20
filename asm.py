@@ -33,7 +33,6 @@ def write_safe(outfile: typing.IO, data: bytes) -> bool:
 def py_eval(line: str, loc: dict):
     "eval py regions in lines"
     if line.count("<py>") % 2 == 0 and line.count("<py>") > 1:
-        # breakpoint()
         splitline = line.split("<py>")
         for i, py_macro in enumerate(splitline[1::2]):
             splitline[i * 2 + 1] = str(eval(py_macro, globals(), loc))
@@ -92,9 +91,9 @@ def cmp(filename: str) -> bool:
         for num, line in enumerate(nasm.stdout.splitlines()):
             line = line.strip()
             here = outfile.tell()
-            line = py_eval(line, locals())
             if DEBUG:
                 print(f"{num:6d} : {here//2:#6x} : {line}")
+            line = py_eval(line, locals())
             if (
                 len(line) < 3 or (line[0] in ["#", "/", "%"]) or line == "None"
             ):  # ignore
