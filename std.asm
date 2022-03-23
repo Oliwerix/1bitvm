@@ -70,13 +70,13 @@
     ;; A => A, B => A+B, Carry
     ;; 5 cycles
 %macro add 3
-    //add------------------
-    x %0, %2
-    x %2, %1
-    x %1, %2
-    a %0, %2
+    a %3, %3
+    x %3, %2
+    x %1, %3
+    a %2, %3
     a %2, %2
-    //add-end--------------
+    x %1, %2
+    x %2, %3
 %endm
 
 %macro call 1
@@ -84,27 +84,36 @@
     set1 0x6e
     set0 0x6f
     c 0, 0x70, 0                ;0
-    // call <py>hex(here//2)<py>
-    add 0x6e,0x7c,0x6f          ;5
-    set0 0x6e                   ;6
-    add 0x6e,0x7b,0x6f          ;11
-    add 0x6e,0x7a,0x6f          ;16
-    not 0x6e                    ;17
-    add 0x6e,0x79,0x6f          ;22
-    not 0x6e                    ;23
-    add 0x6e,0x78,0x6f          ;28
-    add 0x6e,0x77,0x6f          ;33
-    add 0x6e,0x76,0x6f          ;38
+    add 0x6e,0x7a,0x6f          ;7
+    add 0x6e,0x79,0x6f          ;14
+    not 0x6e                    ;15
+    add 0x6e,0x78,0x6f          ;22
+    add 0x6e,0x77,0x6f          ;29
+    add 0x6e,0x76,0x6f          ;36
     add 0x6e,0x75,0x6f          ;43
-    add 0x6e,0x74,0x6f          ;48
-    add 0x6e,0x73,0x6f          ;53
-    add 0x6e,0x72,0x6f          ;58
-    add 0x6e,0x71,0x6f          ;63
-    add 0x6e,0x70,0x6f          ;68
-    c labels[%1], 0, 1          ;69
-    nop                         ;70
-    nop                         ;71
-    nop                         ;71
+    add 0x6e,0x74,0x6f          ;50
+    add 0x6e,0x73,0x6f          ;57
+    add 0x6e,0x72,0x6f          ;64
+    add 0x6e,0x71,0x6f          ;71
+    add 0x6e,0x70,0x6f          ;78
+    c labels[%1], 0, 1          ;85
+    nop                         ;86
+    nop                         ;87
+    nop                         ;88
+    nop                         ;89
+    nop                         ;90
+    nop                         ;91
+    nop                         ;92
+    nop                         ;93
+    nop                         ;94
+    nop                         ;95
+    nop                         ;96
+    nop                         ;97
+    nop                         ;98
+    nop                         ;99
+    nop                         ;100
+    nop                         ;101
+    nop                         ;102
     // call <py>hex(here//2)<py>
 %endm
 
@@ -112,17 +121,33 @@
     c 0x70, 0, 0
 %endm
 
+%macro exit 0
+    .org alignto(here,2, 0)
+    not 0xf
+%endm
+
+%macro printc_m 2
+    set_out_b %1+ 0 , %2
+    set_out_b %1+ 1 , %2
+    set_out_b %1+ 2 , %2
+    set_out_b %1+ 3 , %2
+    set_out_b %1+ 4 , %2
+    set_out_b %1+ 5 , %2
+    set_out_b %1+ 6 , %2
+    set_out_b %1+ 7 , %2
+%endm
+
     ;; prints 'char' -> 'char'+7 to STDOUT
     ;; char (0x15-0x1c), trash (0x14)
-printc_f:
-    set_out_b 0x15+ 0 , 0x14
-    set_out_b 0x15+ 1 , 0x14
-    set_out_b 0x15+ 2 , 0x14
-    set_out_b 0x15+ 3 , 0x14
-    set_out_b 0x15+ 4 , 0x14
-    set_out_b 0x15+ 5 , 0x14
-    set_out_b 0x15+ 6 , 0x14
-    set_out_b 0x15+ 7 , 0x14
-    ret
-printc:
-    .db by2(labels["printc_f"])
+;; printc_f:
+;;     set_out_b 0x15+ 0 , 0x14
+;;     set_out_b 0x15+ 1 , 0x14
+;;     set_out_b 0x15+ 2 , 0x14
+;;     set_out_b 0x15+ 3 , 0x14
+;;     set_out_b 0x15+ 4 , 0x14
+;;     set_out_b 0x15+ 5 , 0x14
+;;     set_out_b 0x15+ 6 , 0x14
+;;     set_out_b 0x15+ 7 , 0x14
+;;     ret
+;; printc:
+;;     .db by2(labels["printc_f"])

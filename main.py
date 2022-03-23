@@ -12,7 +12,7 @@ DEBUG = False
 
 def dbg(x: oneb_vm.VirtM):
     x.dump_state()
-    input()
+    # input()
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
         # if opt.startswith("-") and "i" in opt:
         # IPython.embed()
     if DEBUG:
-        virtual_machine.run(210, dbg)
+        virtual_machine.run(-1, dbg, 0.25)
     else:
         virtual_machine.run(-1)
 
