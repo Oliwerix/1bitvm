@@ -119,16 +119,14 @@ def cmp(filename: str) -> bool:
                     write_safe(outfile, part)
             else:  # assume instruction
                 fail = not write_inst(outfile, line, locals())
-            # j: typing.Callable[str, int] = lambda arg: jumps[arg]
             if fail:
-                # print(nasm.stdout)
                 return False
 
         return True
 
 
 def main():
-    "I have terminal autism"
+    "Nisem ponosen na ta main"
     for opt in sys.argv:
         if opt.startswith("-") and "d" in opt:
             global DEBUG
