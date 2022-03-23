@@ -111,7 +111,6 @@ print_cells:
     print_cell 0x4d
     print_cell 0x4e
     print_cell 0x4f
-    // break
     c labels["newl"], 0x15, 1
     printc_m 0x15,0x14
 c labels["loop"],0,1

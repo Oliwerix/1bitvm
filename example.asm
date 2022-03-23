@@ -21,17 +21,14 @@
     set_out_b %2 + 15, 0x14
 %endm
 
-.db b"aaaaaaaaaaaaaaaaa"
-
 word:
-.db b"Nig\n"
+.db b"Zivjo\n"
 
 main:
     print2 labels["word"]  , 0x15
     print2 labels["word"]+1, 0x15
-    .org alignto(here,2,0)
-    not 0xf
-    //c 1, 0, 1
+    print2 labels["word"]+2, 0x15
+    exit
 
 init "main"
 

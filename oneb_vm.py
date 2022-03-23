@@ -4,8 +4,6 @@
 import typing
 import time
 
-# import collections
-
 IN = 0x10
 IN_A = 0x11
 OU = 0x12
@@ -52,7 +50,6 @@ class STDOUT(Hook):
             if data:
                 self.buff.append(that.get(OU))
                 self.flush(that)
-                # print(f"--> {self.buff}")
         return False
 
     def flush(self, that):
@@ -75,7 +72,6 @@ class STDIN(Hook):
 
     def evl(self, that, cell: int, write: bool, data: bool):
         "eval for hook"
-        # print(f"<-- {self.buff}")
         if not self.buff:
             self.flush(that)
         if not write:
@@ -101,8 +97,6 @@ class STDIN(Hook):
 
 class RAM:
     "onebit ram storage and managment class"
-    # in_buff: typing.Generator[bool, None, None]
-    # out_buff: collections.deque[bool]
     regs: list[bool]
     hooks: dict[tuple[int, bool], Hook]
 
@@ -278,7 +272,6 @@ class VirtM:
 
     def opp1(self, addr1: int, addr2: int, meta: int):
         "Nand two places, rez to addr2"
-        # breakpoint()
         self.ram.set(
             addr2,
             (not (self.ram.get(addr1) and self.ram.get(addr2)))
@@ -290,5 +283,4 @@ class VirtM:
         "Will dump the state of vm to stdout"
         command = self.ram.get_pc()
         self.pgm.dump_command(command)
-        # print(format(self.ram.get_pc(), "0=4x"), end=":")
         print(self.ram)

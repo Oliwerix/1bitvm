@@ -42,7 +42,7 @@ def disassm(filename: str) -> bool:
 
 
 def main():
-    "aftizem inc"
+    "Še en krasen main"
     sys.exit(
         int(
             not all(map(disassm, filter(lambda x: not x.startswith("-"), sys.argv[1:])))

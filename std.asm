@@ -3,15 +3,12 @@
 %define x xor
 %define nop copy 0,0,0
 
-    ;; 1
 %macro not 1
     a %1,%1
 %endm
-    ;; 1
 %macro set0 1
     x %1,%1
 %endm
-    ;; 2
 %macro set1 1
     set0 %1
     not %1
@@ -80,41 +77,23 @@
 %endm
 
 %macro call 1
-    // call <py>hex(here//2)<py>
     set1 0x6e
     set0 0x6f
-    c 0, 0x70, 0                ;0
-    add 0x6e,0x7a,0x6f          ;7
-    add 0x6e,0x79,0x6f          ;14
-    not 0x6e                    ;15
-    add 0x6e,0x78,0x6f          ;22
-    add 0x6e,0x77,0x6f          ;29
-    add 0x6e,0x76,0x6f          ;36
-    add 0x6e,0x75,0x6f          ;43
-    add 0x6e,0x74,0x6f          ;50
-    add 0x6e,0x73,0x6f          ;57
-    add 0x6e,0x72,0x6f          ;64
-    add 0x6e,0x71,0x6f          ;71
-    add 0x6e,0x70,0x6f          ;78
-    c labels[%1], 0, 1          ;85
-    nop                         ;86
-    nop                         ;87
-    nop                         ;88
-    nop                         ;89
-    nop                         ;90
-    nop                         ;91
-    nop                         ;92
-    nop                         ;93
-    nop                         ;94
-    nop                         ;95
-    nop                         ;96
-    nop                         ;97
-    nop                         ;98
-    nop                         ;99
-    nop                         ;100
-    nop                         ;101
-    nop                         ;102
-    // call <py>hex(here//2)<py>
+    c 0, 0x70, 0
+    add 0x6e,0x7a,0x6f
+    add 0x6e,0x79,0x6f
+    not 0x6e
+    add 0x6e,0x78,0x6f
+    add 0x6e,0x77,0x6f
+    add 0x6e,0x76,0x6f
+    add 0x6e,0x75,0x6f
+    add 0x6e,0x74,0x6f
+    add 0x6e,0x73,0x6f
+    add 0x6e,0x72,0x6f
+    add 0x6e,0x71,0x6f
+    add 0x6e,0x70,0x6f
+    c labels[%1], 0, 1
+    .orgr 34
 %endm
 
 %macro ret 0
@@ -136,18 +115,3 @@
     set_out_b %1+ 6 , %2
     set_out_b %1+ 7 , %2
 %endm
-
-    ;; prints 'char' -> 'char'+7 to STDOUT
-    ;; char (0x15-0x1c), trash (0x14)
-;; printc_f:
-;;     set_out_b 0x15+ 0 , 0x14
-;;     set_out_b 0x15+ 1 , 0x14
-;;     set_out_b 0x15+ 2 , 0x14
-;;     set_out_b 0x15+ 3 , 0x14
-;;     set_out_b 0x15+ 4 , 0x14
-;;     set_out_b 0x15+ 5 , 0x14
-;;     set_out_b 0x15+ 6 , 0x14
-;;     set_out_b 0x15+ 7 , 0x14
-;;     ret
-;; printc:
-;;     .db by2(labels["printc_f"])
