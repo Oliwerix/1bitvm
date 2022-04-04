@@ -92,7 +92,7 @@ class STDIN(Hook):
         inp = input(">").encode()
         if len(inp) > 0:
             self.buff = [bool(x & (1 << y)) for x in inp for y in range(7, -1, -1)]
-            that.set(IN, self.buff[1])
+            that.set(IN, self.buff[0])
 
 
 class RAM:
