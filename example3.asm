@@ -28,9 +28,9 @@ newl:
 %endm
 
 main:
-    set1 0x4f
+    set1 0x7f
 loop_f:
-    set0 0x25
+    set1 0x25
     set0 0x26
     set0 0x27
     do_cell 0x2f
@@ -66,6 +66,53 @@ loop_f:
     do_cell 0x4d
     do_cell 0x4e
     do_cell 0x4f
+    do_cell 0x50
+    do_cell 0x51
+    do_cell 0x52
+    do_cell 0x53
+    do_cell 0x54
+    do_cell 0x55
+    do_cell 0x56
+    do_cell 0x57
+    do_cell 0x58
+    do_cell 0x59
+    do_cell 0x5a
+    do_cell 0x5b
+    do_cell 0x5c
+    do_cell 0x5d
+    do_cell 0x5e
+    do_cell 0x5f
+    do_cell 0x60
+    do_cell 0x61
+    do_cell 0x62
+    do_cell 0x63
+    do_cell 0x64
+    do_cell 0x65
+    do_cell 0x66
+    do_cell 0x67
+    do_cell 0x68
+    do_cell 0x69
+    do_cell 0x6a
+    do_cell 0x6b
+    do_cell 0x6c
+    do_cell 0x6d
+    do_cell 0x6e
+    do_cell 0x6f
+    do_cell 0x70
+    do_cell 0x71
+    do_cell 0x72
+    do_cell 0x73
+    do_cell 0x74
+    do_cell 0x75
+    do_cell 0x76
+    do_cell 0x77
+    do_cell 0x78
+    do_cell 0x79
+    do_cell 0x7a
+    do_cell 0x7b
+    do_cell 0x7c
+    do_cell 0x7d
+    do_cell 0x7e
     c labels["pCell"],0,1
 
 
@@ -111,6 +158,53 @@ print_cells:
     print_cell 0x4d
     print_cell 0x4e
     print_cell 0x4f
+    print_cell 0x50
+    print_cell 0x51
+    print_cell 0x52
+    print_cell 0x53
+    print_cell 0x54
+    print_cell 0x55
+    print_cell 0x56
+    print_cell 0x57
+    print_cell 0x58
+    print_cell 0x59
+    print_cell 0x5a
+    print_cell 0x5b
+    print_cell 0x5c
+    print_cell 0x5d
+    print_cell 0x5e
+    print_cell 0x5f
+    print_cell 0x60
+    print_cell 0x61
+    print_cell 0x62
+    print_cell 0x63
+    print_cell 0x64
+    print_cell 0x65
+    print_cell 0x66
+    print_cell 0x67
+    print_cell 0x68
+    print_cell 0x69
+    print_cell 0x6a
+    print_cell 0x6b
+    print_cell 0x6c
+    print_cell 0x6d
+    print_cell 0x6e
+    print_cell 0x6f
+    print_cell 0x70
+    print_cell 0x71
+    print_cell 0x72
+    print_cell 0x73
+    print_cell 0x74
+    print_cell 0x75
+    print_cell 0x76
+    print_cell 0x77
+    print_cell 0x78
+    print_cell 0x79
+    print_cell 0x7a
+    print_cell 0x7b
+    print_cell 0x7c
+    print_cell 0x7d
+    print_cell 0x7e
     c labels["newl"], 0x15, 1
     printc_m 0x15,0x14
 c labels["loop"],0,1
